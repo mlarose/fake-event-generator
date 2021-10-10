@@ -33,7 +33,7 @@ func (s *ForeignPasswordReset) Next() *event.Event {
 		Type:      PasswordResetRequestEvent,
 		TimeStamp: time.Now(),
 		Level:     event.InfoLevel,
-		ExtraProps: map[string]interface{}{
+		ExtraProps: event.ExtraProps{
 			"Email":         s.email,
 			"RecoveryEmail": s.recoveryEmail,
 			"Country":       s.country,

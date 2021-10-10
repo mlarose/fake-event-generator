@@ -32,7 +32,7 @@ func (s *LegitimateLogin) Next() *event.Event {
 		Type:      "FailedLoginAttempt",
 		TimeStamp: time.Now(),
 		Level:     event.WarningLevel,
-		ExtraProps: map[string]interface{}{
+		ExtraProps: event.ExtraProps{
 			"Email":   s.email,
 			"Country": s.country,
 			"IPV4":    s.ipv4,

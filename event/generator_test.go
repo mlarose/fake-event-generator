@@ -58,8 +58,8 @@ func TestGenerator_EventGeneration(t *testing.T) {
 	err := ut.RegisterPatternFactory(MockPatternFactory(nextEvent, isDone, &callCounter), 1, 1)
 	assert.Nil(t, err)
 
-	var eventTicker = NewMockTicker()
-	var patternTicker = NewMockTicker()
+	var eventTicker = NewMockTicker(time.Millisecond * 10)
+	var patternTicker = NewMockTicker(time.Millisecond * 10)
 
 	wg := sync.WaitGroup{}
 
@@ -75,11 +75,11 @@ func TestGenerator_EventGeneration(t *testing.T) {
 	gen := ut.(*generator)
 
 	assert.Len(t, gen.triggeredPatterns, 0, "triggered pattern list should be empty initially")
+
 	patternTicker.SendTick()
-	time.Sleep(10 * time.Millisecond)
 	assert.Len(t, gen.triggeredPatterns, 1, "pattern should be triggered only once")
+
 	patternTicker.SendTick()
-	time.Sleep(10 * time.Millisecond)
 	assert.Len(t, gen.triggeredPatterns, 1, "pattern should be triggered only once")
 
 	// Send a first event

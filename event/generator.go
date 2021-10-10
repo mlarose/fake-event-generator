@@ -128,7 +128,6 @@ func (g *generator) Run(eventTicker Ticker, patternTicker Ticker) error {
 			}
 
 		case <-eventTicker.Channel():
-			fmt.Println("event tick received")
 			// for each triggered patterns
 			activePatterns := make([]PatternInstance, 0)
 			for _, triggeredPattern := range g.triggeredPatterns {

@@ -11,10 +11,10 @@ const (
 
 /// Patterns emerging from different user interactions
 const (
-	AccountLockedPattern        = "AccountLockedPattern"
-	ForeignLoginPattern         = "ForeignPasswordReset"
-	ForeignPasswordResetPattern = "ForeignPasswordResetPattern"
-	LegitimateLoginPattern      = "LegitimateLoginPattern"
+	AccountLockedPattern        = "AccountLocked"
+	ForeignLoginPattern         = "ForeignLogin"
+	ForeignPasswordResetPattern = "ForeignPasswordReset"
+	LegitimateLoginPattern      = "LegitimateLogin"
 )
 
 var RestrictedForeignCountries = []string{

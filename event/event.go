@@ -12,7 +12,7 @@ const (
 	FatalLevel   = "fatal"
 )
 
-type ExtraProps map[string]interface{}
+type ExtraProps map[string]string
 
 type Event struct {
 	Type      string    `json:"type"`
