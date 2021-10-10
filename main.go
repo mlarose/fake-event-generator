@@ -1,5 +1,7 @@
 package main
 
-func main() {
+import "homework-event-generator/cmd"
 
+func main() {
+	cmd.Execute()
 }
