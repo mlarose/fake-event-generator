@@ -1,10 +1,11 @@
 package auth
 
 import (
-	"github.com/stretchr/testify/assert"
 	"homework-event-generator/event"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewAccountLockedFactory(t *testing.T) {

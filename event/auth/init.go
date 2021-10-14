@@ -9,7 +9,14 @@ const (
 	PasswordChangedEvent      = "PasswordChanged"
 )
 
-/// Patterns emerging from different user interactions
+// Reasons for failed login attempts
+const (
+	ReasonWrongPassword = "Wrong password"
+	ReasonFailed2FA     = "Failed two factor authentication"
+	ReasonTimeout       = "Attempt timed out"
+)
+
+// Patterns emerging from different user interactions
 const (
 	AccountLockedPattern        = "AccountLocked"
 	ForeignLoginPattern         = "ForeignLogin"
