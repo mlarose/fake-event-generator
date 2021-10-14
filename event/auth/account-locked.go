@@ -37,7 +37,7 @@ func NewAccountLockedFactory(ticker event.Ticker) event.PatternFactory {
 					"Country": country.(string),
 					"IPV4":    ipv4,
 					"IPV6":    ipv6,
-					"Reason":  "Wrong password",
+					"Reason":  ReasonWrongPassword,
 				},
 			}
 
