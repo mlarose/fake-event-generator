@@ -154,7 +154,7 @@ func (g *generator) Run(eventTicker Ticker, patternTicker Ticker) error {
 }
 
 func (g *generator) SetRandomSeed(seed int64) error {
-	if seed < 0 {
+	if seed <= 0 {
 		return fmt.Errorf("random seed must be a non-negative integer, %d given", seed)
 	}
 
