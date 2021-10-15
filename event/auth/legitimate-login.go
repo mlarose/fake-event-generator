@@ -18,7 +18,7 @@ func NewLegitimateLoginFactory(ticker event.Ticker) event.PatternFactory {
 		}
 
 		ipv4 := gofakeit.IPv4Address()
-		ipv6 := fmt.Sprintf("::FFFF:%s", ipv4)
+		ipv6 := fmt.Sprintf("::ffff:%s", ipv4)
 		unsuccessfulAttempts := rand.Intn(4)
 
 		events := make([]*event.Event, unsuccessfulAttempts)

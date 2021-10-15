@@ -19,7 +19,7 @@ func NewAccountLockedFactory(ticker event.Ticker) event.PatternFactory {
 	return event.NewPatternFactory(AccountLockedPattern, func() event.PatternInstance {
 		email := gofakeit.RandomString(GetLegitimateUsers())
 		ipv4 := gofakeit.IPv4Address()
-		ipv6 := fmt.Sprintf("::FFFF:%s", ipv4)
+		ipv6 := fmt.Sprintf("::ffff:%s", ipv4)
 		count := allowedAuthAttempts + rand.Intn(maxExtraAttempts) + minExtraAttempts
 		country, err := gofakeit.Weighted(legitimateCountriesAsInterfaceSlice, LegitimateCountriesWeight)
 		if err != nil {

@@ -11,7 +11,7 @@ import (
 func NewRestrictedCountryLoginFactory(ticker event.Ticker) event.PatternFactory {
 	return event.NewPatternFactory(RestrictedCountryLoginPattern, func() event.PatternInstance {
 		ipv4 := gofakeit.IPv4Address()
-		ipv6 := fmt.Sprintf("::FFFF:%s", ipv4)
+		ipv6 := fmt.Sprintf("::ffff:%s", ipv4)
 
 		events := []*event.Event{
 			{

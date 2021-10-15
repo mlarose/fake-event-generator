@@ -14,7 +14,7 @@ func NewRestrictedCountryPasswordResetFactory(ticker event.Ticker) event.Pattern
 		country := gofakeit.RandomString(RestrictedCountries)
 
 		ipv4 := gofakeit.IPv4Address()
-		ipv6 := fmt.Sprintf("::FFFF:%s", ipv4)
+		ipv6 := fmt.Sprintf("::ffff:%s", ipv4)
 
 		events := []*event.Event{
 			{
