@@ -39,21 +39,21 @@ var RestrictedCountries = []string{
 var UserDistributionPerCountry = map[string]float32{
 	"Australia":      1,
 	"Belgium":        2,
-	"Canada":         20,
+	"Canada":         30,
 	"Denmark":        1,
-	"France":         3,
+	"France":         8,
 	"Germany":        2,
 	"Israel":         1,
 	"Japan":          1,
 	"Switzerland":    1,
 	"Spain":          1,
 	"United Kingdom": 5,
-	"United States":  10,
+	"United States":  20,
 }
 
-var LegitimateCountries = make([]string, len(UserDistributionPerCountry))
-var LegitimateCountriesWeight = make([]float32, len(UserDistributionPerCountry))
-var legitimateCountriesAsInterfaceSlice = make([]interface{}, len(LegitimateCountries))
+var LegitimateCountries = make([]string, 0, len(UserDistributionPerCountry))
+var LegitimateCountriesWeight = make([]float32, 0, len(UserDistributionPerCountry))
+var legitimateCountriesAsInterfaceSlice = make([]interface{}, 0, len(LegitimateCountries))
 
 var legitimateUsersCount = 1000
 var legitimateUsers []string
