@@ -19,7 +19,7 @@ func NewForeignLoginFactory(ticker event.Ticker) event.PatternFactory {
 				TimeStamp: time.Now(),
 				Level:     event.InfoLevel,
 				ExtraProps: event.ExtraProps{
-					"Email":   gofakeit.Email(),
+					"Email":   gofakeit.RandomString(GetLegitimateUsers()),
 					"Country": gofakeit.RandomString(RestrictedForeignCountries),
 					"IPV4":    ipv4,
 					"IPV6":    ipv6,

@@ -1,5 +1,10 @@
 package auth
 
+import (
+	"fmt"
+	"github.com/brianvoe/gofakeit/v6"
+)
+
 // Event types produced by the authentication system
 const (
 	AccountLockedEvent        = "AccountLockedEvent"
@@ -11,9 +16,12 @@ const (
 
 // Reasons for failed login attempts
 const (
-	ReasonWrongPassword = "Wrong password"
-	ReasonFailed2FA     = "Failed two factor authentication"
-	ReasonTimeout       = "Attempt timed out"
+	ReasonAccountLocked         = "User account locked"
+	ReasonUnregisteredAccount   = "Unregistered account"
+	ReasonWrongPassword         = "Wrong password"
+	ReasonFailed2FA             = "Failed two factor authentication"
+	ReasonTimeout               = "Attempt timed out"
+	ReasonTooManyFailedAttempts = "Too many failed authentication attempts"
 )
 
 // Patterns emerging from different user interactions
@@ -47,6 +55,12 @@ var LegitimateCountries = make([]string, len(UserDistributionPerCountry))
 var LegitimateCountriesWeight = make([]float32, len(UserDistributionPerCountry))
 var legitimateCountriesAsInterfaceSlice = make([]interface{}, len(LegitimateCountries))
 
+var legitimateUsersCount = 1000
+var legitimateUsers []string
+
+var legitimateOrgsCount = 50
+var legitimateOrgs []string
+
 func init() {
 	for _, country := range LegitimateCountries {
 		legitimateCountriesAsInterfaceSlice = append(legitimateCountriesAsInterfaceSlice, country)
@@ -56,4 +70,30 @@ func init() {
 		LegitimateCountries = append(LegitimateCountries, k)
 		LegitimateCountriesWeight = append(LegitimateCountriesWeight, v)
 	}
+}
+
+func GetLegitimateUsers() []string {
+	if len(legitimateUsers) != legitimateUsersCount {
+		legitimateUsers = make([]string, legitimateUsersCount)
+		for i := 0; i < legitimateUsersCount; i++ {
+			legitimateUsers[i] = fmt.Sprintf("%s.%s@%s",
+				gofakeit.FirstName(),
+				gofakeit.LastName(),
+				gofakeit.RandomString(GetLegitimateOrgs()),
+			)
+		}
+	}
+
+	return legitimateUsers
+}
+
+func GetLegitimateOrgs() []string {
+	if len(legitimateOrgs) != legitimateOrgsCount {
+		legitimateOrgs = make([]string, legitimateOrgsCount)
+		for i := 0; i < legitimateOrgsCount; i++ {
+			legitimateOrgs[i] = gofakeit.DomainName()
+		}
+	}
+
+	return legitimateOrgs
 }

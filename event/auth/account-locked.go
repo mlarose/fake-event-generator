@@ -17,7 +17,7 @@ const (
 
 func NewAccountLockedFactory(ticker event.Ticker) event.PatternFactory {
 	return event.NewPatternFactory(AccountLockedPattern, func() event.PatternInstance {
-		email := gofakeit.Email()
+		email := gofakeit.RandomString(GetLegitimateUsers())
 		ipv4 := gofakeit.IPv4Address()
 		ipv6 := fmt.Sprintf("::FFFF:%s", ipv4)
 		count := allowedAuthAttempts + rand.Intn(maxExtraAttempts) + minExtraAttempts
@@ -31,20 +31,26 @@ func NewAccountLockedFactory(ticker event.Ticker) event.PatternFactory {
 			ev := &event.Event{
 				Type:      FailedLoginAttemptEvent,
 				TimeStamp: time.Now(),
-				Level:     event.InfoLevel,
 				ExtraProps: event.ExtraProps{
 					"Email":   email,
 					"Country": country.(string),
 					"IPV4":    ipv4,
 					"IPV6":    ipv6,
-					"Reason":  ReasonWrongPassword,
 				},
 			}
 
-			if i >= allowedAuthAttempts {
+			if i < allowedAuthAttempts {
+				ev.Type = FailedLoginAttemptEvent
+				ev.Level = event.InfoLevel
+				ev.ExtraProps["Reason"] = gofakeit.RandomString([]string{ReasonWrongPassword, ReasonFailed2FA, ReasonTimeout})
+			} else if i == allowedAuthAttempts {
 				ev.Type = AccountLockedEvent
 				ev.Level = event.WarningLevel
-				ev.ExtraProps["Reason"] = "Too many failed authentication attempts"
+				ev.ExtraProps["Reason"] = ReasonTooManyFailedAttempts
+			} else {
+				ev.Type = FailedLoginAttemptEvent
+				ev.Level = event.InfoLevel
+				ev.ExtraProps["Reason"] = ReasonAccountLocked
 			}
 			events[i] = ev
 		}

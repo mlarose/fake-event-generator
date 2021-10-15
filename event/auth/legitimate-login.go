@@ -11,7 +11,7 @@ import (
 
 func NewLegitimateLoginFactory(ticker event.Ticker) event.PatternFactory {
 	return event.NewPatternFactory(LegitimateLoginPattern, func() event.PatternInstance {
-		email := gofakeit.Email()
+		email := gofakeit.RandomString(GetLegitimateUsers())
 		country, err := gofakeit.Weighted(legitimateCountriesAsInterfaceSlice, LegitimateCountriesWeight)
 		if err != nil {
 			country = "Canada"

@@ -27,12 +27,18 @@ func TestNewAccountLockedFactory(t *testing.T) {
 		assert.NotNil(t, ev)
 		assert.WithinDurationf(t, time.Now(), ev.TimeStamp, 50*time.Millisecond, "event should be received with tolerance")
 
-		if i >= 5 {
+		if i < 5 {
+			assert.Equal(t, event.InfoLevel, ev.Level)
+			assert.Equal(t, FailedLoginAttemptEvent, ev.Type)
+			assert.Contains(t, []string{ReasonWrongPassword, ReasonFailed2FA, ReasonTimeout}, ev.ExtraProps["Reason"])
+		} else if i == 5 {
 			assert.Equal(t, event.WarningLevel, ev.Level)
 			assert.Equal(t, AccountLockedEvent, ev.Type)
+			assert.Equal(t, ReasonTooManyFailedAttempts, ev.ExtraProps["Reason"])
 		} else {
 			assert.Equal(t, event.InfoLevel, ev.Level)
 			assert.Equal(t, FailedLoginAttemptEvent, ev.Type)
+			assert.Equal(t, ReasonAccountLocked, ev.ExtraProps["Reason"])
 		}
 	}
 
