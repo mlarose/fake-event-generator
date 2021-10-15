@@ -26,7 +26,7 @@ func TestNewLegitimateLoginFactory(t *testing.T) {
 		ev := instance.Next()
 		assert.NotNil(t, ev)
 		assert.WithinDurationf(t, time.Now(), ev.TimeStamp, 50*time.Millisecond, "event should be received with tolerance")
-		assert.NotContains(t, RestrictedForeignCountries, ev.ExtraProps["Country"], "should be a restricted country")
+		assert.NotContains(t, RestrictedCountries, ev.ExtraProps["Country"], "should be a restricted country")
 		assert.Contains(t, LegitimateCountries, ev.ExtraProps["Country"])
 		assert.Contains(t, []string{SuccessfulLoginEvent, FailedLoginAttemptEvent}, ev.Type)
 

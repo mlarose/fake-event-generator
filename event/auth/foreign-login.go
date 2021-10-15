@@ -8,8 +8,8 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 )
 
-func NewForeignLoginFactory(ticker event.Ticker) event.PatternFactory {
-	return event.NewPatternFactory(ForeignLoginPattern, func() event.PatternInstance {
+func NewRestrictedCountryLoginFactory(ticker event.Ticker) event.PatternFactory {
+	return event.NewPatternFactory(RestrictedCountryLoginPattern, func() event.PatternInstance {
 		ipv4 := gofakeit.IPv4Address()
 		ipv6 := fmt.Sprintf("::FFFF:%s", ipv4)
 
@@ -20,13 +20,13 @@ func NewForeignLoginFactory(ticker event.Ticker) event.PatternFactory {
 				Level:     event.InfoLevel,
 				ExtraProps: event.ExtraProps{
 					"Email":   gofakeit.RandomString(GetLegitimateUsers()),
-					"Country": gofakeit.RandomString(RestrictedForeignCountries),
+					"Country": gofakeit.RandomString(RestrictedCountries),
 					"IPV4":    ipv4,
 					"IPV6":    ipv6,
 				},
 			},
 		}
 
-		return event.NewPatternInstance(ForeignLoginPattern, events, ticker)
+		return event.NewPatternInstance(RestrictedCountryLoginPattern, events, ticker)
 	})
 }

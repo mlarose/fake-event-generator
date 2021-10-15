@@ -24,13 +24,13 @@ func createEventGenerator() event.Generator {
 	err = gen.RegisterPatternFactory(auth.NewLegitimateLoginFactory(jitter), 0.4, 3)
 	cobra.CheckErr(err)
 
-	err = gen.RegisterPatternFactory(auth.NewForeignLoginFactory(jitter), 0.01, 2)
+	err = gen.RegisterPatternFactory(auth.NewRestrictedCountryLoginFactory(jitter), 0.01, 2)
 	cobra.CheckErr(err)
 
 	err = gen.RegisterPatternFactory(auth.NewAccountLockedFactory(jitter), 0.05, 1)
 	cobra.CheckErr(err)
 
-	err = gen.RegisterPatternFactory(auth.NewForeignPasswordResetFactory(jitter), 0.002, 1)
+	err = gen.RegisterPatternFactory(auth.NewRestrictedCountryPasswordResetFactory(jitter), 0.002, 1)
 	cobra.CheckErr(err)
 
 	return gen

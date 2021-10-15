@@ -26,13 +26,13 @@ const (
 
 // Patterns emerging from different user interactions
 const (
-	AccountLockedPattern        = "AccountLocked"
-	ForeignLoginPattern         = "ForeignLogin"
-	ForeignPasswordResetPattern = "ForeignPasswordReset"
-	LegitimateLoginPattern      = "LegitimateLogin"
+	AccountLockedPattern                  = "AccountLocked"
+	RestrictedCountryLoginPattern         = "RestrictedCountryLogin"
+	RestrictedCountryPasswordResetPattern = "RestrictedCountryPasswordReset"
+	LegitimateLoginPattern                = "LegitimateLogin"
 )
 
-var RestrictedForeignCountries = []string{
+var RestrictedCountries = []string{
 	"China", "Cuba", "Iran", "North Korea", "Russia", "Sudan", "Syria",
 }
 

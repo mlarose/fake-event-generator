@@ -7,11 +7,11 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 )
 
-func NewForeignPasswordResetFactory(ticker event.Ticker) event.PatternFactory {
-	return event.NewPatternFactory(ForeignPasswordResetPattern, func() event.PatternInstance {
+func NewRestrictedCountryPasswordResetFactory(ticker event.Ticker) event.PatternFactory {
+	return event.NewPatternFactory(RestrictedCountryPasswordResetPattern, func() event.PatternInstance {
 		email := gofakeit.RandomString(GetLegitimateUsers())
 		recoveryEmail := gofakeit.Email()
-		country := gofakeit.RandomString(RestrictedForeignCountries)
+		country := gofakeit.RandomString(RestrictedCountries)
 
 		ipv4 := gofakeit.IPv4Address()
 		ipv6 := fmt.Sprintf("::FFFF:%s", ipv4)
@@ -41,6 +41,6 @@ func NewForeignPasswordResetFactory(ticker event.Ticker) event.PatternFactory {
 			},
 		}
 
-		return event.NewPatternInstance(ForeignPasswordResetPattern, events, ticker)
+		return event.NewPatternInstance(RestrictedCountryPasswordResetPattern, events, ticker)
 	})
 }

@@ -10,14 +10,14 @@ import (
 
 func TestNewForeignLoginFactory(t *testing.T) {
 	ticker := event.NewMockTicker(10 * time.Millisecond)
-	ut := NewForeignLoginFactory(ticker)
+	ut := NewRestrictedCountryLoginFactory(ticker)
 
 	assert.NotNil(t, ut)
-	assert.Equal(t, ForeignLoginPattern, ut.Name())
+	assert.Equal(t, RestrictedCountryLoginPattern, ut.Name())
 
 	instance := ut.CreatePatternInstance()
 	assert.NotNil(t, instance)
-	assert.Equal(t, ForeignLoginPattern, instance.Name())
+	assert.Equal(t, RestrictedCountryLoginPattern, instance.Name())
 	assert.False(t, instance.Done())
 	assert.Nil(t, instance.Next())
 
@@ -27,5 +27,5 @@ func TestNewForeignLoginFactory(t *testing.T) {
 	assert.WithinDurationf(t, time.Now(), ev.TimeStamp, 50*time.Millisecond, "event should be received with tolerance")
 	assert.Equal(t, SuccessfulLoginEvent, ev.Type)
 	assert.Equal(t, event.InfoLevel, ev.Level)
-	assert.Containsf(t, RestrictedForeignCountries, ev.ExtraProps["Country"], "should be a restricted country")
+	assert.Containsf(t, RestrictedCountries, ev.ExtraProps["Country"], "should be a restricted country")
 }
