@@ -5,7 +5,6 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"io"
 	"net"
-	"time"
 )
 
 type Tcp struct {
@@ -14,15 +13,10 @@ type Tcp struct {
 	conn    net.Conn
 }
 
-func NewTcpWriteCloser(addr net.Addr) (io.WriteCloser, error) {
-	exponentialBackoff := backoff.NewExponentialBackOff()
-	exponentialBackoff.InitialInterval = 100 * time.Millisecond
-	exponentialBackoff.MaxInterval = 10 * time.Second
-	exponentialBackoff.MaxElapsedTime = time.Minute
-
+func NewTcpWriteCloser(addr net.Addr, bo backoff.BackOff) (io.WriteCloser, error) {
 	tcp := &Tcp{
 		addr:    addr,
-		backoff: exponentialBackoff,
+		backoff: bo,
 	}
 
 	err := tcp.Connect()

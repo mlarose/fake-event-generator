@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"time"
 
 	"github.com/cenkalti/backoff/v4"
 	log "github.com/sirupsen/logrus"
@@ -16,6 +17,11 @@ import (
 )
 
 func NewHttpCmd() *cobra.Command {
+	var (
+		remoteAddr string
+		remotePort uint16
+	)
+
 	var httpCmd = &cobra.Command{
 		Use:   "http",
 		Short: "Send events over to a http server",
@@ -35,14 +41,12 @@ func NewHttpCmd() *cobra.Command {
 				wg.Done()
 			}()
 
-			host := "localhost"
-			port := 3333
-
 			// connect to remote tcp server to emit event
 			bo := backoff.NewExponentialBackOff()
-			url := url.URL{
+			bo.MaxElapsedTime = 10 * time.Second
+			u := url.URL{
 				Scheme: "http",
-				Host:   fmt.Sprintf("%s:%d", host, port),
+				Host:   fmt.Sprintf("%s:%d", remoteAddr, remotePort),
 				Path:   "/event",
 			}
 
@@ -59,7 +63,7 @@ func NewHttpCmd() *cobra.Command {
 
 					log.Debugln(string(buf))
 					err = backoff.Retry(func() error {
-						resp, err := http.Post(url.String(), "application/json", bytes.NewReader(buf))
+						resp, err := http.Post(u.String(), "application/json", bytes.NewReader(buf))
 						if err != nil {
 							return err
 						}
@@ -81,6 +85,9 @@ func NewHttpCmd() *cobra.Command {
 			wg.Wait()
 		},
 	}
+
+	httpCmd.Flags().StringVarP(&remoteAddr, "host", "H", "localhost", "remote host address")
+	httpCmd.Flags().Uint16VarP(&remotePort, "port", "p", 3333, "remote port")
 
 	return httpCmd
 }

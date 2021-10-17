@@ -2,12 +2,14 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"homework-event-generator/output"
 	"io"
 	"net"
 	"os"
 	"os/signal"
 	"sync"
+	"time"
 
 	"github.com/cenkalti/backoff/v4"
 	log "github.com/sirupsen/logrus"
@@ -15,6 +17,11 @@ import (
 )
 
 func NewTcpCmd() *cobra.Command {
+	var (
+		remoteAddr string
+		remotePort uint16
+	)
+
 	tcpCmd := &cobra.Command{
 		Use:   "tcp",
 		Short: "Send events over a unencrypted tcp connection to a destination address",
@@ -23,7 +30,7 @@ The events are sent in a new line delimited stream of json documents, each one r
 		Run: func(cmd *cobra.Command, args []string) {
 			var err error
 			wg := sync.WaitGroup{}
-			sigChan := make(chan os.Signal)
+			sigChan := make(chan os.Signal, 1)
 			signal.Notify(sigChan, os.Interrupt)
 
 			// Start event generation in a goroutine
@@ -32,20 +39,24 @@ The events are sent in a new line delimited stream of json documents, each one r
 				wg.Add(1)
 				err := runEventGenerator(gen)
 				cobra.CheckErr(err)
-
 				wg.Done()
 			}()
 
 			// connect to remote tcp server to emit event
 			var tcp io.WriteCloser
+			remoteHost := fmt.Sprintf("%s:%d", remoteAddr, remotePort)
 			bo := backoff.NewExponentialBackOff()
+			bo.InitialInterval = 500 * time.Millisecond
+			bo.MaxInterval = 3 * time.Second
+			bo.MaxElapsedTime = 15 * time.Second
+
 			err = backoff.Retry(func() error {
-				addr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:3333")
+				addr, err := net.ResolveTCPAddr("tcp", remoteHost)
 				if err != nil {
 					return err
 				}
 
-				tcp, err = output.NewTcpWriteCloser(addr)
+				tcp, err = output.NewTcpWriteCloser(addr, bo)
 				return err
 			}, bo)
 			cobra.CheckErr(err)
@@ -75,6 +86,9 @@ The events are sent in a new line delimited stream of json documents, each one r
 			wg.Wait()
 		},
 	}
+
+	tcpCmd.Flags().StringVarP(&remoteAddr, "host", "H", "localhost", "remote host address")
+	tcpCmd.Flags().Uint16VarP(&remotePort, "port", "p", 3333, "remote port")
 
 	return tcpCmd
 }
