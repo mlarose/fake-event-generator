@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"crypto/rand"
 	"homework-event-generator/event"
 	"homework-event-generator/event/auth"
+	"math"
+	"math/big"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -17,7 +20,14 @@ func createEventGenerator() event.Generator {
 	gen := event.NewGenerator()
 
 	if seed := viper.GetInt64("seed"); seed != 0 {
-		err := gen.SetRandomSeed(seed)
+		err = gen.SetRandomSeed(seed)
+		cobra.CheckErr(err)
+	} else {
+		bigSeed, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
+		cobra.CheckErr(err)
+
+		int64Seed := bigSeed.Int64()
+		err = gen.SetRandomSeed(int64Seed)
 		cobra.CheckErr(err)
 	}
 
