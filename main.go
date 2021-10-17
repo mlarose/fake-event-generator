@@ -1,6 +1,6 @@
 package main
 
-import "homework-event-generator/cmd"
+import "fake-event-generator/cmd"
 
 func main() {
 	cmd.Execute()

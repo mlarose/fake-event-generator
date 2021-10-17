@@ -1,4 +1,4 @@
-module homework-event-generator
+module fake-event-generator
 
 go 1.17
 

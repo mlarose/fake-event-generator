@@ -1,8 +1,8 @@
 package auth
 
 import (
+	"fake-event-generator/event"
 	"fmt"
-	"homework-event-generator/event"
 
 	"github.com/brianvoe/gofakeit/v6"
 )

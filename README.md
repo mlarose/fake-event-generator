@@ -1,4 +1,4 @@
-homework-event-generator
+fake-event-generator
 ------------------------
 
 # Usage

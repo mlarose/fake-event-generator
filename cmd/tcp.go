@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"encoding/json"
+	"fake-event-generator/output"
 	"fmt"
-	"homework-event-generator/output"
 	"io"
 	"net"
 	"os"

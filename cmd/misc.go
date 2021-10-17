@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"crypto/rand"
-	"homework-event-generator/event"
-	"homework-event-generator/event/auth"
+	"fake-event-generator/event"
+	"fake-event-generator/event/auth"
 	"math"
 	"math/big"
 	"time"

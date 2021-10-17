@@ -1,8 +1,8 @@
 package auth
 
 import (
+	"fake-event-generator/event"
 	"github.com/stretchr/testify/assert"
-	"homework-event-generator/event"
 	"testing"
 	"time"
 )

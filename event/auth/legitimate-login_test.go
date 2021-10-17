@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"homework-event-generator/event"
+	"fake-event-generator/event"
 	"testing"
 	"time"
 
