@@ -1,15 +1,13 @@
 package cmd
 
 import (
-	"crypto/rand"
 	"fake-event-generator/event"
 	"fake-event-generator/event/auth"
-	"math"
-	"math/big"
+	"github.com/brianvoe/gofakeit/v6"
+	mrand "math/rand"
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 const (
@@ -22,21 +20,16 @@ const (
 func createEventGenerator() event.Generator {
 	var err error
 
-	jitter := event.NewJitterTicker(factoryTickerBase, factoryTickerJitter)
+	mrand.Seed(randomSeed)
+	generatorSeed := mrand.Int63()
+	fakeItSeed := mrand.Int63()
+	gofakeit.Seed(fakeItSeed)
 
 	gen := event.NewGenerator()
+	err = gen.SetRandomSeed(generatorSeed)
+	cobra.CheckErr(err)
 
-	if seed := viper.GetInt64("seed"); seed != 0 {
-		err = gen.SetRandomSeed(seed)
-		cobra.CheckErr(err)
-	} else {
-		bigSeed, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
-		cobra.CheckErr(err)
-
-		int64Seed := bigSeed.Int64()
-		err = gen.SetRandomSeed(int64Seed)
-		cobra.CheckErr(err)
-	}
+	jitter := event.NewJitterTicker(factoryTickerBase, factoryTickerJitter)
 
 	err = gen.RegisterPatternFactory(auth.NewLegitimateLoginFactory(jitter), 0.4, 3)
 	cobra.CheckErr(err)

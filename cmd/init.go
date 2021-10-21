@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	crand "crypto/rand"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"math"
+	"math/big"
 	"time"
 )
 
@@ -22,8 +24,14 @@ and authentication systems.`,
 func init() {
 	rootCmd.PersistentFlags().Int64Var(&randomSeed, "seed", 0, "initialize random number generation with this seed")
 
-	err := viper.BindPFlag("seed", rootCmd.PersistentFlags().Lookup("seed"))
-	cobra.CheckErr(err)
+	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
+		// if no seed is provided, initialize a seed using crypto/rand
+		if randomSeed == 0 {
+			bigSeed, err := crand.Int(crand.Reader, big.NewInt(math.MaxInt64))
+			cobra.CheckErr(err)
+			randomSeed = bigSeed.Int64()
+		}
+	}
 
 	rootCmd.AddCommand(NewHttpCmd(timeoutDelay))
 	rootCmd.AddCommand(NewTcpCmd(timeoutDelay))
