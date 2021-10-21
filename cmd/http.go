@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -16,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewHttpCmd() *cobra.Command {
+func NewHttpCmd(timeoutDelay time.Duration) *cobra.Command {
 	var (
 		remoteAddr string
 		remotePort uint16
@@ -28,18 +29,11 @@ func NewHttpCmd() *cobra.Command {
 		Long:  `Events are sent as single json object as a POST to http:\\{host}:{port}{path}`,
 		Run: func(cmd *cobra.Command, args []string) {
 			wg := sync.WaitGroup{}
-			sigChan := make(chan os.Signal)
+			sigChan := make(chan os.Signal, 1)
 			signal.Notify(sigChan, os.Interrupt)
 
-			// Start event generation in a goroutine
+			// create event generator
 			gen := createEventGenerator()
-			go func() {
-				wg.Add(1)
-				err := runEventGenerator(gen)
-				cobra.CheckErr(err)
-
-				wg.Done()
-			}()
 
 			// connect to remote tcp server to emit event
 			bo := backoff.NewExponentialBackOff()
@@ -52,34 +46,53 @@ func NewHttpCmd() *cobra.Command {
 
 			// Process and send event on http destination until termination signal received.
 			done := false
-			for !done {
-				select {
-				case <-sigChan:
-					gen.Terminate()
-					done = true
-				case ev := <-gen.Output():
-					buf, err := json.Marshal(ev)
-					cobra.CheckErr(err)
+			go func() {
+				wg.Add(1)
+				for !done {
+					select {
+					case <-time.After(timeoutDelay):
+						continue
 
-					log.Debugln(string(buf))
-					err = backoff.Retry(func() error {
-						resp, err := http.Post(u.String(), "application/json", bytes.NewReader(buf))
+					case ev := <-gen.Output():
+						buf, err := json.Marshal(ev)
+						cobra.CheckErr(err)
+
+						err = backoff.Retry(func() error {
+							if done {
+								return backoff.Permanent(errors.New("program is terminating"))
+							}
+
+							resp, err := http.Post(u.String(), "application/json", bytes.NewReader(buf))
+							if err != nil {
+								return err
+							}
+
+							if resp.StatusCode < 200 && resp.StatusCode > 208 {
+								return fmt.Errorf("unexpected response status code: %d", resp.StatusCode)
+							}
+
+							_ = resp.Body.Close()
+							return nil
+						}, bo)
 						if err != nil {
-							return err
+							log.Errorf("failed to write event to http: %s", err)
 						}
-
-						if resp.StatusCode < 200 && resp.StatusCode > 208 {
-							return fmt.Errorf("unexpected response status code: %d", resp.StatusCode)
-						}
-
-						_ = resp.Body.Close()
-						return nil
-					}, bo)
-					if err != nil {
-						log.Errorf("failed to write event to http: %s", err)
 					}
 				}
-			}
+				wg.Done()
+			}()
+
+			// Start event generation in a goroutine
+			go func() {
+				wg.Add(1)
+				err := runEventGenerator(gen)
+				cobra.CheckErr(err)
+				wg.Done()
+			}()
+
+			<-sigChan
+			gen.Terminate()
+			done = true
 
 			// Wait for generator goroutine completion
 			wg.Wait()

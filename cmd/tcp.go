@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fake-event-generator/output"
 	"fmt"
 	"io"
@@ -16,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewTcpCmd() *cobra.Command {
+func NewTcpCmd(timeoutDelay time.Duration) *cobra.Command {
 	var (
 		remoteAddr string
 		remotePort uint16
@@ -32,6 +33,7 @@ The events are sent in a new line delimited stream of json documents, each one r
 			wg := sync.WaitGroup{}
 			sigChan := make(chan os.Signal, 1)
 			signal.Notify(sigChan, os.Interrupt)
+			done := false
 
 			// Start event generation in a goroutine
 			gen := createEventGenerator()
@@ -42,45 +44,56 @@ The events are sent in a new line delimited stream of json documents, each one r
 				wg.Done()
 			}()
 
-			// connect to remote tcp server to emit event
-			var tcp io.WriteCloser
-			remoteHost := fmt.Sprintf("%s:%d", remoteAddr, remotePort)
-			bo := backoff.NewExponentialBackOff()
-			bo.InitialInterval = 500 * time.Millisecond
-			bo.MaxInterval = 3 * time.Second
-			bo.MaxElapsedTime = 15 * time.Second
+			go func() {
+				wg.Add(1)
 
-			err = backoff.Retry(func() error {
-				addr, err := net.ResolveTCPAddr("tcp", remoteHost)
-				if err != nil {
-					return err
-				}
+				// connect to remote tcp server to emit event
+				var tcp io.WriteCloser
+				remoteHost := fmt.Sprintf("%s:%d", remoteAddr, remotePort)
+				bo := backoff.NewExponentialBackOff()
+				bo.InitialInterval = 100 * time.Millisecond
+				bo.MaxInterval = 5 * time.Second
+				bo.MaxElapsedTime = 15 * time.Second
 
-				tcp, err = output.NewTcpWriteCloser(addr, bo)
-				return err
-			}, bo)
-			cobra.CheckErr(err)
-
-			// Process and send event on the tcp output until termination signal received.
-			done := false
-			for !done {
-				select {
-				case <-sigChan:
-					gen.Terminate()
-					done = true
-				case ev := <-gen.Output():
-					buf, err := json.Marshal(ev)
-					cobra.CheckErr(err)
-
-					log.Debugln(string(buf))
-					n, err := tcp.Write(append(buf, '\n'))
+				err = backoff.Retry(func() error {
+					if done {
+						return backoff.Permanent(errors.New("program is terminating"))
+					}
+					addr, err := net.ResolveTCPAddr("tcp", remoteHost)
 					if err != nil {
-						log.Errorf("failed to write event to tcp: %s", err)
-					} else if n != len(buf)+1 {
-						log.Errorf("partial event write, %d bytes written on %d", n, len(buf))
+						return err
+					}
+
+					tcp, err = output.NewTcpWriteCloser(addr, bo)
+					return err
+				}, bo)
+				cobra.CheckErr(err)
+
+				// Process and send event on the tcp output until termination signal received.
+				for !done {
+					select {
+					case <-time.After(timeoutDelay):
+						continue
+					case ev := <-gen.Output():
+						buf, err := json.Marshal(ev)
+						cobra.CheckErr(err)
+
+						log.Debugln(string(buf))
+						n, err := tcp.Write(append(buf, '\n'))
+						if err != nil {
+							log.Errorf("failed to write event to tcp: %s", err)
+						} else if n != len(buf)+1 {
+							log.Errorf("partial event write, %d bytes written on %d", n, len(buf))
+						}
 					}
 				}
-			}
+
+				wg.Done()
+			}()
+
+			<-sigChan
+			gen.Terminate()
+			done = true
 
 			// Wait for generator goroutine completion
 			wg.Wait()

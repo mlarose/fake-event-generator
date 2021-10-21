@@ -4,7 +4,10 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"time"
 )
+
+const timeoutDelay = time.Millisecond * 100
 
 var (
 	randomSeed int64
@@ -22,8 +25,9 @@ func init() {
 	err := viper.BindPFlag("seed", rootCmd.PersistentFlags().Lookup("seed"))
 	cobra.CheckErr(err)
 
-	rootCmd.AddCommand(NewTcpCmd())
-	rootCmd.AddCommand(NewHttpCmd())
+	rootCmd.AddCommand(NewHttpCmd(timeoutDelay))
+	rootCmd.AddCommand(NewTcpCmd(timeoutDelay))
+	rootCmd.AddCommand(NewStdoutCmd())
 }
 
 func Execute() {

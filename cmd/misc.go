@@ -12,10 +12,17 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	generatorEventPeriod   = time.Millisecond * 10
+	generatorPatternPeriod = time.Millisecond * 100
+	factoryTickerBase      = time.Millisecond * 20
+	factoryTickerJitter    = time.Millisecond * 2000
+)
+
 func createEventGenerator() event.Generator {
 	var err error
 
-	jitter := event.NewJitterTicker(time.Millisecond*100, time.Second*4)
+	jitter := event.NewJitterTicker(factoryTickerBase, factoryTickerJitter)
 
 	gen := event.NewGenerator()
 
@@ -43,12 +50,15 @@ func createEventGenerator() event.Generator {
 	err = gen.RegisterPatternFactory(auth.NewRestrictedCountryPasswordResetFactory(jitter), 0.002, 1)
 	cobra.CheckErr(err)
 
+	err = gen.RegisterPatternFactory(auth.NewInvalidAccountFactory(jitter), 0.05, 1)
+	cobra.CheckErr(err)
+
 	return gen
 }
 
 func runEventGenerator(gen event.Generator) error {
 	return gen.Run(
-		event.WrapTimeTicker(time.NewTicker(10*time.Millisecond)),
-		event.WrapTimeTicker(time.NewTicker(100*time.Millisecond)),
+		event.WrapTimeTicker(time.NewTicker(generatorEventPeriod)),
+		event.WrapTimeTicker(time.NewTicker(generatorPatternPeriod)),
 	)
 }
