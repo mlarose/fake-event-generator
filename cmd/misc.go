@@ -43,8 +43,19 @@ func createEventGenerator() event.Generator {
 	err = gen.RegisterPatternFactory(auth.NewRestrictedCountryPasswordResetFactory(jitter), 0.002, 1)
 	cobra.CheckErr(err)
 
-	err = gen.RegisterPatternFactory(auth.NewInvalidAccountFactory(jitter), 0.05, 1)
+	err = gen.RegisterPatternFactory(auth.NewInvalidAccountFactory(jitter), 0.02, 1)
 	cobra.CheckErr(err)
+
+	err = gen.RegisterPatternFactory(auth.NewAccessFromMultipleLocationsFactory(jitter), 0.001, 2)
+	cobra.CheckErr(err)
+
+	/// Make sure this triggers once
+	time.AfterFunc(13*time.Second, func() {
+		err := gen.TriggerPattern(auth.AccessFromMultipleLocationsPattern)
+		if err != nil {
+			cobra.CheckErr(err)
+		}
+	})
 
 	return gen
 }
