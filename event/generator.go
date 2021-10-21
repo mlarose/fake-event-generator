@@ -138,8 +138,6 @@ func (g *generator) Run(eventTicker Ticker, patternTicker Ticker) error {
 
 				if !triggeredPattern.Done() {
 					activePatterns = append(activePatterns, triggeredPattern)
-				} else {
-					fmt.Printf("pattern %s has completed\n", triggeredPattern.Name())
 				}
 			}
 
