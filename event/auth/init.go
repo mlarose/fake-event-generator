@@ -27,9 +27,10 @@ const (
 // Patterns emerging from different user interactions
 const (
 	AccountLockedPattern                  = "AccountLocked"
+	InvalidAccountPattern                 = "InvalidAccountPattern"
+	LegitimateLoginPattern                = "LegitimateLogin"
 	RestrictedCountryLoginPattern         = "RestrictedCountryLogin"
 	RestrictedCountryPasswordResetPattern = "RestrictedCountryPasswordReset"
-	LegitimateLoginPattern                = "LegitimateLogin"
 )
 
 var RestrictedCountries = []string{
