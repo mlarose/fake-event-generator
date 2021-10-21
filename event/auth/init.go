@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+
 	"github.com/brianvoe/gofakeit/v6"
 )
 
@@ -26,8 +27,9 @@ const (
 
 // Patterns emerging from different user interactions
 const (
+	AccessFromMultipleLocationsPattern    = "AccountAccessFromMultipleLocation"
 	AccountLockedPattern                  = "AccountLocked"
-	InvalidAccountPattern                 = "InvalidAccountPattern"
+	InvalidAccountPattern                 = "InvalidAccount"
 	LegitimateLoginPattern                = "LegitimateLogin"
 	RestrictedCountryLoginPattern         = "RestrictedCountryLogin"
 	RestrictedCountryPasswordResetPattern = "RestrictedCountryPasswordReset"
